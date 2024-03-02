@@ -1,0 +1,17 @@
+!*/
+/runs/
+/train_process/
+/log/
+**/__pycache__/
+**/.idea/
+/data/static/
+!/data/static/.gitkeep
+/data/images/
+/releases/
+*.cache
+*.pth
+*.onnx
+/models/openvino_model/
+!/models/openvino_model/.gitkeep
+!/log/class_id.json
+!requirements.txt
