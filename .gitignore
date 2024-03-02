@@ -1,6 +1,5 @@
 runs/
-train_process/
-log/
+**/train_process/
 **/__pycache__/
 **/.idea/
 *.jpg
@@ -13,7 +12,8 @@ releases/
 *.onnx
 *.xml
 *.bin
-!/log
+!/assets
+!/assets/*
 /log/*
 !/log/class_id.json
 !requirements.txt
