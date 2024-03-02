@@ -1,7 +1,7 @@
 from _utils.detect import Multiprocess, OV_video_start
 from _utils.myutils import *
 from multiprocessing import Process, Queue
-from _utils.configs import Ir_Cfg, tr_Cfg, Cfg
+from _utils.configs import Ir_Cfg, tr_Cfg, ba_Cfg
 from common.movenet.models.model_factory import load_model
 from common.handpose.models.squeezenet import squeezenet1_1
 from common.mico.backbone import MicroNet
@@ -60,4 +60,4 @@ def main(camera, pf, mode, device):
 
 
 if __name__ == '__main__':
-    main(Ir_Cfg['source'], Ir_Cfg['platform'], Ir_Cfg['pose_net'], Cfg['device'])
+    main(Ir_Cfg['source'], ba_Cfg['platform'], ba_Cfg['pose_net'], ba_Cfg['device'])

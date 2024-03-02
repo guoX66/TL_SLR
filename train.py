@@ -1,17 +1,16 @@
 # coding:utf-8
+import argparse
 import platform
 import traceback
 from torch.utils.data import DataLoader
 from torchvision.datasets import ImageFolder
 from _utils.myutils import *
-from _utils.configs import TrainImg, ModelInfo
 from torchvision import transforms
 import shutil
 from torch.optim.lr_scheduler import StepLR
 import torch.distributed as dist
 from common.mico.backbone import MicroNet
 from common.mico.utils.defaults import _C as cfg
-
 
 
 def train_model(Train, txt_list, modelinfo):
@@ -167,6 +166,7 @@ def train_model(Train, txt_list, modelinfo):
 
 
 def train_process():
+    from _utils.configs import TrainImg, ModelInfo
     Train = TrainImg()
     modelinfo = ModelInfo()
     txt_list = []
@@ -200,7 +200,30 @@ def train_process():
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--model', type=str)
+    parser.add_argument('--epochs', type=int)
+    parser.add_argument('--batch_size', type=int)
+    parser.add_argument('--divide_present', type=float)
+    parser.add_argument('--lr', type=float)
+    parser.add_argument('--step_size', type=int)
+    parser.add_argument('--gamma', type=float)
+    parser.add_argument('--show_mode', type=str)
+    parser.add_argument('--write_process', type=bool)
+    args = parser.parse_args()
+    dic = vars(args)
+    change_dict = {i: dic[i] for i in dic.keys() if dic[i] is not None}
+
     try:
+        import yaml
+
+        with open('Cfg.yaml', 'r', encoding='utf-8') as f:
+            Cfg = yaml.load(f.read(), Loader=yaml.FullLoader)
+        for i in change_dict.keys():
+            Cfg['train'][i] = change_dict[i]
+        with open('Cfg.yaml', "w", encoding="utf-8") as f:
+            yaml.dump(Cfg, f)
+
         train_process()
     except Exception as e:
         print(e)

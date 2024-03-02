@@ -4,38 +4,48 @@ import json
 import sys
 
 sys.path.append("..")
-from _utils.OV_detect import make_model, my_convert_model, inference_
-from handpose.models.squeezenet import squeezenet1_1
-from movenet.models.model_factory import load_model
+from _utils.detect import make_model, my_convert_model, inference_
+from common.handpose.models.squeezenet import squeezenet1_1
+from common.movenet.models.model_factory import load_model
 import time
 from openvino.runtime import Core
-from mico.backbone import MicroNet
-from mico.utils.defaults import _C as cfg
+from common.mico.backbone import MicroNet
+from common.mico.utils.defaults import _C as cfg
 from _utils.myutils import add_log
 
 
 def te_fast(model, ov_path, data, txt_list):
+    from torchvision import transforms
+    from _utils.configs import ModelInfo
+    modelinfo = ModelInfo()
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(modelinfo.ms[0], modelinfo.ms[1])
+    ])
+
     device = torch.device('cpu')
     ie = Core()
     ov_model = my_convert_model(ov_path, ie, device='CPU')
-    t_data = torch.FloatTensor(data).to(device)
-    data = data[0]
+    t_data = transform(data).float().to(device)
+    t_data = t_data.unsqueeze(0)
     data = data.astype('float16')
+    data = data.transpose(2, 0, 1)
     start_time = time.time()
+    model.eval()
     with torch.no_grad():
-        for i in range(1000):
+        for i in range(100):
             out1 = model(t_data)
         end_time = time.time()
         add_log(f'    Torch-cpu cost {round((end_time - start_time), 2)}s', txt_list)
-        start_time2 = time.time()
-        for i in range(1000):
-            out2 = inference_(ov_model, data)
-        end_time2 = time.time()
-        add_log(f'    openvino cost {round((end_time2 - start_time2), 2)}s', txt_list)
-        rou = round((end_time - start_time) / (end_time2 - start_time2), 1)
-        err = np.sum(np.abs(out2 - out1.cpu().numpy()))
-        add_log(f'    openvino is {rou} times as Torch-cpu', txt_list)
-        add_log(f'    err={err}', txt_list)
+    start_time2 = time.time()
+    for i in range(100):
+        out2 = inference_(ov_model, data)
+    end_time2 = time.time()
+    add_log(f'    openvino cost {round((end_time2 - start_time2), 2)}s', txt_list)
+    rou = round((end_time - start_time) / (end_time2 - start_time2), 1)
+
+    add_log(f'    openvino is {rou} times as Torch-cpu', txt_list)
+    # add_log(f'    err={err}', txt_list)
 
 
 def te_ov():

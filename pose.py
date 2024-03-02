@@ -88,26 +88,26 @@ def get_pose(foldname, label, filename, imgpath, pose_model, hand_model, device)
 
 if __name__ == "__main__":
     args = argparse.ArgumentParser()
-    args.add_argument("--device", type=str, default='None')
-    args.add_argument("--view_mode", type=str, default='None')
+    args.add_argument("--device", type=str)
+    args.add_argument("--view_mode", type=int)
     args = args.parse_args()
     try:
         import yaml
 
         with open('Cfg.yaml', 'r', encoding='utf-8') as f:
-            Cfg = yaml.load(f.read(), Loader=yaml.FullLoader)
-        if args.device != 'None':
-            Cfg['device'] = args.device
-        if args.view_mode != 'None':
-            Cfg['view_mode'] = int(args.view_mode)
+            ini_Cfg = yaml.load(f.read(), Loader=yaml.FullLoader)
+        if args.device is not None:
+            ini_Cfg['base']['device'] = args.device
+        if args.view_mode is not None:
+            ini_Cfg['base']['view_mode'] = args.view_mode
         with open('Cfg.yaml', "w", encoding="utf-8") as f:
-            yaml.dump(Cfg, f)
+            yaml.dump(ini_Cfg, f)
 
         from _utils.detect import draw_skel_and_kp, view_mode, my_convert_model, inference_, is_show, is_write
         from _utils.configs import *
 
-        device = Cfg['device']
-        mode = Ir_Cfg['pose_net']
+        device = Cfg['base']['device']
+        mode = Cfg['base']['pose_net']
 
         p_device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         Train = TrainImg()
@@ -121,13 +121,9 @@ if __name__ == "__main__":
             p_hand.to(p_device)
 
         else:
-            if mode == "mv":
-                from openvino.runtime import Core
-
-                ie = Core()
-                p_pose = my_convert_model('models/openvino_model/pose_model.xml', ie, device='CPU')
-            else:
-                raise ValueError('pose net must be "mv"')
+            from openvino.runtime import Core
+            ie = Core()
+            p_pose = my_convert_model('models/openvino_model/pose_model.xml', ie, device='CPU')
             p_hand = my_convert_model('models/openvino_model/hand_model.xml', ie, device)
 
         make_img(Train.foldname, Train.imgpath, p_pose, p_hand, device)

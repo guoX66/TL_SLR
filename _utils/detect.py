@@ -12,7 +12,7 @@ transform = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(modelinfo.ms[0], modelinfo.ms[1])
 ])
-view_mode = Cfg['view_mode']
+view_mode = Cfg['base']['view_mode']
 if view_mode == 1:
     is_show, is_write = True, False
 elif view_mode == 2:
@@ -24,10 +24,6 @@ else:
 
 
 def Multiprocess(iq, oq, p_pose, p_hand, p_class, class_dict, sq, mode, device):
-    # if pf == 'rp':
-    #     device = 'MYRIAD'
-    # else:
-    #     device = 'CPU'
     if device == "NVIDIA pytorch":
         pose_model = p_pose
         hand_model = p_hand

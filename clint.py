@@ -9,7 +9,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 import matplotlib.font_manager as fm
 import matplotlib
-from _utils.configs import Ir_Cfg
+from _utils.configs import Ir_Cfg,ba_Cfg
 
 
 def cv2ImgAddText(img, text, left, top, textColor, textSize=20):
@@ -225,6 +225,6 @@ def main(camera, IP, port, pf):
 
 
 if __name__ == '__main__':
-    platform = Ir_Cfg['platform']
-    pose_net = Ir_Cfg['pose_net']
-    main(Ir_Cfg['source'], Ir_Cfg['IP'], Ir_Cfg['port'], Ir_Cfg['platform'])
+    platform = ba_Cfg['platform']
+    pose_net = ba_Cfg['pose_net']
+    main(Ir_Cfg['source'], Ir_Cfg['IP'], Ir_Cfg['port'], ba_Cfg['platform'])

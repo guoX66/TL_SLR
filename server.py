@@ -7,8 +7,7 @@ from torchvision import transforms
 from _utils.configs import ModelInfo
 from common.movenet.models.model_factory import load_model
 from multiprocessing import Process, Queue
-from torch2trt import TRTModule
-from _utils.configs import tr_Cfg, Ir_Cfg
+from _utils.configs import  Ir_Cfg, ba_Cfg
 
 
 def ser_Multiprocess(client_socket1, iq, p_pose, p_hand, p_class, device, mode, class_dict):
@@ -90,8 +89,8 @@ def main(port, iq_num):
     with open("log/class_id.json", 'r', encoding='UTF-8') as f:
         class_dict = json.load(f)
     class_dict = {int(k): class_dict[k] for k in class_dict.keys()}
-    c_model = tr_Cfg['model']
-    device = Ir_Cfg['device']
+    c_model = Ir_Cfg['model']
+    device = ba_Cfg['device']
     p_class = f'models/tensorrt_model/tr-{c_model}.pth'  # resnet18
     p_hand = 'models/tensorrt_model/tr-hand_model-res50.pth'
     p_pose = load_model("movenet_lightning", ft_size=48)

@@ -1,23 +1,9 @@
-import numpy as np
-import torch
-import json
-from PIL import Image
-from torchvision import transforms
-import sys
-
-from handpose.models.resnet import resnet50
-
-sys.path.append("..")
-from _utils.myutils import make_model
-from handpose.models.squeezenet import squeezenet1_1
-import time
-from torch2trt import TRTModule
-from mico.backbone import MicroNet
-from mico.utils.defaults import _C as cfg
-from _utils.myutils import add_log
-
-
 def te_fast(model, trt_path, data, txt_list):
+    from torch2trt import TRTModule
+    import time
+    from _utils.myutils import add_log
+    import torch
+    import numpy as np
     model_trt1 = TRTModule()
     model_trt1.load_state_dict(torch.load(trt_path))
     start_time = time.time()
@@ -42,6 +28,17 @@ def te_fast(model, trt_path, data, txt_list):
 
 
 def te_sr():
+    import time
+    import torch
+    import json
+    from PIL import Image
+    from torchvision import transforms
+    from common.handpose.models.resnet import resnet50
+    from _utils.myutils import make_model
+    from common.handpose.models.squeezenet import squeezenet1_1
+    from common.mico.backbone import MicroNet
+    from common.mico.utils.defaults import _C as cfg
+    from _utils.myutils import add_log
     with open("../log/class_id.json", 'r', encoding='UTF-8') as f:
         class_dict = json.load(f)
     class_dict = {int(k): class_dict[k] for k in class_dict.keys()}

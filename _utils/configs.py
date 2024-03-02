@@ -2,21 +2,28 @@ import torchvision.models as models
 from torchvision import transforms
 import os
 import yaml
-
-with open('Cfg.yaml', 'r', encoding='utf-8') as f:
+if os.path.exists('Cfg.yaml'):
+    yaml_path = 'Cfg.yaml'
+elif os.path.exists('../Cfg.yaml'):
+    yaml_path = '../Cfg.yaml'
+else:
+    raise FileNotFoundError('Cfg.yaml not found')
+with open(yaml_path, 'r', encoding='utf-8') as f:
     Cfg = yaml.load(f.read(), Loader=yaml.FullLoader)
 tr_Cfg = Cfg['train']
 Ir_Cfg = Cfg['inference']
+ba_Cfg = Cfg['base']
 
 
 class ModelInfo:
     def __init__(self):
         self.model = tr_Cfg['model']  # 选择模型，可选googlenet,resnet18，resnet34，resnet50，resnet101
         self.modelname = 'model-' + self.model
-        self.size = [int(tr_Cfg['size'].split('x')[0]), int(tr_Cfg['size'].split('x')[1])]  # 设置输入模型的图片大小
+        self.size = [int(ba_Cfg['size'].split('x')[0]), int(ba_Cfg['size'].split('x')[1])]  # 设置输入模型的图片大小
         # self.ms = [[0.5, 0.5, 0.5], [0.5, 0.5, 0.5]]  # 标准化设置
         self.ms = tr_Cfg['Normalized_matrix']
         self.min_pr = 4 / 5  # 设置预测时各模型预测结果最多的类作为最终结果所需要的最小占比，即几票通过算通过
+
 
 class TrainImg:
     def __init__(self):
@@ -30,5 +37,3 @@ class TrainImg:
         self.epoch = tr_Cfg['epoch']
         self.show_mode = tr_Cfg['show_mode']
         self.write_process = tr_Cfg['write_process']
-
-
