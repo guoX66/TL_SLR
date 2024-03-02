@@ -1,7 +1,7 @@
 from _utils.detect import Multiprocess, OV_video_start
 from _utils.myutils import *
 from multiprocessing import Process, Queue
-from _utils.configs import Ir_Cfg, tr_Cfg
+from _utils.configs import Ir_Cfg, tr_Cfg, Cfg
 from common.movenet.models.model_factory import load_model
 from common.handpose.models.squeezenet import squeezenet1_1
 from common.mico.backbone import MicroNet
@@ -13,7 +13,7 @@ def main(camera, pf, mode, device):
         class_dict = json.load(f)
     class_dict = {int(k): class_dict[k] for k in class_dict.keys()}
     n_label = len(list(class_dict.keys()))
-    c_model = tr_Cfg['model']
+    c_model = Ir_Cfg['model']
     if device == "NVIDIA pytorch":
         p_pose = load_model("movenet_lightning", ft_size=48)
         path_hand = 'models/pth/squeezenet1_1-size-256-loss-0.0732.pth'
@@ -29,7 +29,7 @@ def main(camera, pf, mode, device):
 
     elif device == "NVIDIA tensorrt":
         p_class = f'models/tensorrt_model/tr-{c_model}.pth'
-        p_hand = 'models/tensorrt_model/tr-hand_model-res50.pth'
+        p_hand = 'models/tensorrt_model/tr-hand_model-squ.pth'
         p_pose = load_model("movenet_lightning", ft_size=48)
     else:
         if mode == 'mv':
@@ -60,4 +60,4 @@ def main(camera, pf, mode, device):
 
 
 if __name__ == '__main__':
-    main(Ir_Cfg['source'], Ir_Cfg['platform'], Ir_Cfg['pose_net'], Ir_Cfg['device'])
+    main(Ir_Cfg['source'], Ir_Cfg['platform'], Ir_Cfg['pose_net'], Cfg['device'])

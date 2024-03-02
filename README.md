@@ -122,14 +122,14 @@ python setup.py install
 前往 _utils/Cfg.yaml 中修改inference相关参数
 
 ```yaml
+device: NVIDIA pytorch                 # 计算平台，CPU、MYRAID、NVIDIA pytorch、NVIDIA tensorrt
+
 inference:
   IP: 203.135.98.31                      # 服务器IP
-  device: NVIDIA pytorch                 # 计算平台，CPU、MYRAID、NVIDIA pytorch、NVIDIA tensorrt
   platform: pc                           # 平台类型，树莓派填 rp,其余填pc
   port: 37942                            # 服务器端口号
   pose_net: mv                           # movenet填 mv openvino模型填 ov
   source: assets/test.mp4                # 视频源，可以填本地视频路径，摄像头填 0
-  view_mode: 3                           # 显示转换效果，0为不显示，1为显示骨架图，2为显示骨架在实际图像上的效果，3为全部显示
 
 python_path: ../my_env
 
@@ -153,6 +153,7 @@ train:
   write_process: false                   # 设置是否将训练过程写入log中
 
 python_path: ../my_env
+view_mode: 3                           # 显示转换效果，0为不显示，1为显示骨架图，2为显示骨架在实际图像上的效果，3为全部显示
 ```
 
 ## 3、运行系统
@@ -236,5 +237,3 @@ python pth2trt_demo.py --model googlenet
 在树莓派上部署详见我的博客：[树莓派4B配置Openvino-CSDN博客](https://blog.csdn.net/2301_76725922/article/details/136389051)
 
 最后运行main.py程序进入系统
-
-

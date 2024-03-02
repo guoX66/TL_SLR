@@ -61,7 +61,7 @@ def train_model(Train, txt_list, modelinfo):
     n_label = len(list(class_to_id_dict.keys()))
     if modelinfo.model == "micronet_m3":
         model = MicroNet(cfg, num_classes=n_label)
-        model.load_state_dict(torch.load('mico/models/micronet-m3.pth'), strict=False)
+        model.load_state_dict(torch.load('models/pth/ini-micronet-m3.pth'), strict=False)
     else:
         model = make_train_model(modelinfo, n_label)
 
@@ -187,14 +187,14 @@ def train_process():
     add_log(f'图片标准化设置为:{modelinfo.ms[0]}和{modelinfo.ms[1]}', txt_list)
     date_time = time.strftime('%Y-%m-%d-%Hh %Mm', time.localtime())
     filename = model_name + '-' + str(date_time)
-    model_path = f"train_process/{filename}/{filename}"
+    model_path = f"log/train_process/{filename}/{filename}"
     train_dir(filename)
     shutil.move(f'{model_name}.pth', f'./{model_path}.pth')
     et = time.time()
     tt_time = et - st
     add_log("训练总共用时:{}小时:{}分钟:{}秒".format(int(tt_time // 3600), int((tt_time % 3600) // 60),
                                                      int(tt_time % 60)), txt_list)
-    write_log(f"train_process/{filename}", filename, txt_list)
+    write_log(f"log/train_process/{filename}", filename, txt_list)
     make_plot(loss_list, 'loss', filename, epoch)
     make_plot(acc_list, 'acc', filename, epoch)
 

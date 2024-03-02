@@ -1,11 +1,11 @@
+device: NVIDIA tensorrt
 inference:
   IP: 203.135.98.31
-  device: NVIDIA pytorch
+  model: micronet_m3
   platform: pc
   port: 37942
-  pose_net: mv
+  pose_net: ov
   source: assets/test.mp4
-  view_mode: 3
 python_path: ../my_env
 train:
   Normalized_matrix:
@@ -25,3 +25,4 @@ train:
   size: 256x256
   step_size: 1
   write_process: false
+view_mode: 3

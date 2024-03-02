@@ -4,7 +4,7 @@ from common.open_zoo.pose_demo import ov_ini, pose_inference
 from _utils.myutils import *
 from common.movenet.moveutils import _process_input, handDetect, get_adjacent_keypoints
 from common.handpose.hand_data_iter.datasets import draw_bd_handpose
-from _utils.configs import ModelInfo, Ir_Cfg
+from _utils.configs import ModelInfo, Cfg
 from torchvision import transforms
 
 modelinfo = ModelInfo()
@@ -12,7 +12,7 @@ transform = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(modelinfo.ms[0], modelinfo.ms[1])
 ])
-view_mode = Ir_Cfg['view_mode']
+view_mode = Cfg['view_mode']
 if view_mode == 1:
     is_show, is_write = True, False
 elif view_mode == 2:
@@ -221,7 +221,7 @@ def draw_skel_and_kp(img, kpt_with_conf, conf_thres, hand_model, mode, device):
     height, width, _ = img.shape
     adjacent_keypoints = []
     cv_keypoints = []
-    if mode == "ov":
+    if mode == "ov" and device == "CPU":
         if len(kpt_with_conf) > 0:
             poses = kpt_with_conf[0]
         else:

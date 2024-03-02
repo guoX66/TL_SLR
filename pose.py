@@ -97,16 +97,16 @@ if __name__ == "__main__":
         with open('Cfg.yaml', 'r', encoding='utf-8') as f:
             Cfg = yaml.load(f.read(), Loader=yaml.FullLoader)
         if args.device != 'None':
-            Cfg['inference']['device'] = args.device
+            Cfg['device'] = args.device
         if args.view_mode != 'None':
-            Cfg['inference']['view_mode'] = int(args.view_mode)
+            Cfg['view_mode'] = int(args.view_mode)
         with open('Cfg.yaml', "w", encoding="utf-8") as f:
             yaml.dump(Cfg, f)
 
         from _utils.detect import draw_skel_and_kp, view_mode, my_convert_model, inference_, is_show, is_write
         from _utils.configs import *
 
-        device = Ir_Cfg['device']
+        device = Cfg['device']
         mode = Ir_Cfg['pose_net']
 
         p_device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -130,7 +130,7 @@ if __name__ == "__main__":
                 raise ValueError('pose net must be "mv"')
             p_hand = my_convert_model('models/openvino_model/hand_model.xml', ie, device)
 
-        make_img(Train.foldname, Train.imgpath, p_pose, p_hand, Ir_Cfg['device'])
+        make_img(Train.foldname, Train.imgpath, p_pose, p_hand, device)
 
     except Exception as e:
         print(e)

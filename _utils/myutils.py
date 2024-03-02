@@ -181,10 +181,10 @@ def write_log(in_path, filename, txt_list):
 
 def train_dir(filename):
     try:
-        os.mkdir('train_process')
+        os.mkdir('log/train_process')
     except:
         pass
-    file_path = 'train_process/' + filename
+    file_path = 'log/train_process/' + filename
     try:
         os.mkdir(file_path)
     except:
@@ -236,7 +236,7 @@ def write_json(test_dict, path):
 
 
 def make_plot(data, mode, filename, epoch):
-    file_path = 'train_process/' + filename
+    file_path = 'log/train_process/' + filename
     if mode == 'loss':
         title = 'LOSS'
         path = os.path.join(file_path, 'LOSS-' + filename)

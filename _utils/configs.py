@@ -18,7 +18,6 @@ class ModelInfo:
         self.ms = tr_Cfg['Normalized_matrix']
         self.min_pr = 4 / 5  # 设置预测时各模型预测结果最多的类作为最终结果所需要的最小占比，即几票通过算通过
 
-
 class TrainImg:
     def __init__(self):
         self.imgpath = 'data/images'  # 保存图片的文件名
@@ -33,9 +32,3 @@ class TrainImg:
         self.write_process = tr_Cfg['write_process']
 
 
-class TestImg(TrainImg):
-    def __init__(self):
-        super().__init__()
-        self.foldname = 'static/test_wav'
-        self.imgpath = 'static/test_img'  # 保存测试图片的路径名
-        self.log_path = 'log-test'
