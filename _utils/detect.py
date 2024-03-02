@@ -1,11 +1,11 @@
 # coding:utf-8
 
-from common.open_zoo.pose_demo import ov_ini, pose_inference
 from _utils.myutils import *
 from common.movenet.moveutils import _process_input, handDetect, get_adjacent_keypoints
 from common.handpose.hand_data_iter.datasets import draw_bd_handpose
 from _utils.configs import ModelInfo, Cfg
 from torchvision import transforms
+from common.open_zoo.pose_demo import pose_inference
 
 modelinfo = ModelInfo()
 transform = transforms.Compose([
@@ -52,6 +52,7 @@ def Multiprocess(iq, oq, p_pose, p_hand, p_class, class_dict, sq, mode, device):
             ie = Core()
             pose_model = my_convert_model(pose_path, ie, device='CPU')
         elif mode == "ov":
+            from common.open_zoo.pose_demo import ov_ini
             pose_model, ie = ov_ini(pose_path, img, device)
         else:
             raise ValueError('pose net must be "mv" or "ov"')
