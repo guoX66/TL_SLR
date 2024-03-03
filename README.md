@@ -30,7 +30,9 @@ openvino官方模型：[openvinotoolkit/open_model_zoo: Pre-trained Deep Learnin
 
 
 
-# 环境配置
+# 一、环境配置
+
+## 1、环境创建与激活
 
 首先需安装 python>=3.10.2，然后将项目移至全英文路径下
 
@@ -48,7 +50,11 @@ source my_env/bin/activate
 python -m pip install --upgrade pip
 ```
 
-然后安装torch>=2.1.1,torchaudio>=2.1.1 torchvision>=0.16.1
+## 2、特殊库配置安装（可以选择其中一个或多个进行）
+
+### pytorch
+
+安装torch>=2.1.1,torchaudio>=2.1.1 torchvision>=0.16.1
 
 在有nvidia服务的设备上，使用以下命令安装
 
@@ -62,19 +68,27 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 pip3 install torch torchvision torchaudio
 ```
 
+ 
+
+### openvino
+
 若使用openvino框架进行推理，请使用以下命令安装环境
 
 ```bash
 pip install openvino-dev==2022.3.1
 ```
 
+在树莓派上部署详见我的博客：[树莓派4B配置Openvino-CSDN博客](https://blog.csdn.net/2301_76725922/article/details/136389051)
+
+ 
+
+### TensorRT
+
 若使用TensorRt框架进行推理，请确保
 
 tensorrt>=8.6.1,cuda>=11.8,cudnn>=8.7
 
 tensorrt安装包可按照torch与cuda版本在官网选择下载：[NVIDIA TensorRT Download | NVIDIA Developer](https://developer.nvidia.com/tensorrt-download)
-
-
 
 或者按照项目已包含的包安装tensorrt，执行以下命令
 
@@ -83,8 +97,6 @@ cd common/Tensorrt
 pip install tensorrt-8.6.1-cp310-none-win_amd64.whl   <根据操作系统与python版本选择对应wheel包安装>
 ```
 
-
-
 安装后可使用以下命令依次查看torch，cuda、cudnn以及tensorrt的版本
 
 ```bash
@@ -92,15 +104,15 @@ python -c "import torch;print(torch.__version__);print(torch.version.cuda);print
 python -c "import tensorrt;print(tensorrt.__version__)"
 ```
 
-安装其他环境依赖
+## 3、安装其他环境依赖
 
 ```bash
 pip install -r requirements.txt
 ```
 
+## *4、安装torch2trt（TensorRT安装后可选择）
 
-
-安装torch2trt, 具体参考：[NVIDIA-AI-IOT/torch2trt: An easy to use PyTorch to TensorRT converter (github.com)](https://github.com/NVIDIA-AI-IOT/torch2trt)
+具体参考：[NVIDIA-AI-IOT/torch2trt: An easy to use PyTorch to TensorRT converter (github.com)](https://github.com/NVIDIA-AI-IOT/torch2trt)
 
 执行以下命令：
 
@@ -128,7 +140,7 @@ base:
   device: NVIDIA pytorch                 # 计算平台，CPU、MYRAID、NVIDIA pytorch、NVIDIA tensorrt
   platform: pc                           # 平台类型，树莓派填 rp,其余填pc
   pose_net: ov                           # movenet填 mv openvino模型填 ov
-  python_path: ../my_env       
+  env_path: ../my_env/Lib                # 填写python环境路径,写到 site-packages的上一级目录
   size: 256x256                          # 设置输入分类模型的图片大小
   view_mode: 3                           # 显示转换效果，0为不显示，1为显示骨架图，2为显示骨架在实际图像上的效果，3为全部显示
 
@@ -229,6 +241,8 @@ python train.py --model micronet_m3 --epochs 100 --batch_size 4 --divide_present
 
 ### 1、转openvino框架
 
+需要修改 Cfg.yaml 中 base-env_path 参数,填写python环境路径,写到 site-packages的上一级目录
+
 ```bash
 cd models
 python pth2ov_demo.py --model googlenet
@@ -247,8 +261,6 @@ python pth2trt_demo.py --model googlenet  --fp16 True
 
 ## 本地端
 
-在树莓派上部署详见我的博客：[树莓派4B配置Openvino-CSDN博客](https://blog.csdn.net/2301_76725922/article/details/136389051)
-
 部署和转换完成后，运行main.py程序启动系统，选择转换好的分类网络进行推理
 
 最后运行main.py程序进入系统
@@ -266,5 +278,3 @@ python TR_ser.py --port 8800 <可改为需要的端口>
 ```bash
 python main.py
 ```
-
-
