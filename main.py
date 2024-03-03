@@ -58,8 +58,11 @@ def ini_yaml():
         plat.append(['rp'])
     if OV:
         plat.append(['rp', 'pc'])
-    plat_list = list(set(plat[0]) & set(plat[1]) & set(plat[2]))  # 求交集
-    return pyt, trt, OV, MYD, plat_list
+    plat_list = min(plat, key=len)  # 平台可选列表
+    device_list = ['NVIDIA pytorch', 'NVIDIA tensorrt', 'CPU', 'MYRAID']
+    avi_list = [pyt, trt, OV, MYD]
+    d_list = [device_list[i] for i in range(len(device_list)) if avi_list[i]]  # 可用服务列表
+    return plat_list, d_list
 
 
 def login_online():  # 在线模式
