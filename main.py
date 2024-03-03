@@ -1,11 +1,30 @@
+import os
 import tkinter as tk
+import platform
 from tkinter import messagebox
 from tkinter import *
 import subprocess
-
 from ttkbootstrap import Style
 from PIL import ImageTk, Image
 from tkinter import ttk
+from _utils.configs import ba_Cfg
+
+os_name = str(platform.system())
+env = ba_Cfg['env_path']
+absolute_env_path = os.path.abspath(env)
+
+# 构建环境中 Python 解释器的绝对路径
+if os_name == "Windows":
+    python_executable = os.path.join(absolute_env_path, "Scripts", "python.exe")  # Windows
+else:
+    python_executable = os.path.join(absolute_env_path, "bin", "python")  # Linux/macOS
+# 当前文件路径
+current_dir = os.path.dirname(os.path.realpath(__file__))
+
+
+def get_system_info():
+    os_name = str(platform.system())
+    return os_name
 
 
 def ini_yaml():
@@ -47,7 +66,8 @@ def login_online():  # 在线模式
     root.update()  # 更新窗口，确保进度条显示
     print('1')
     try:
-        result = subprocess.run(["python", "clint.py"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        command = [python_executable, f"{current_dir}/clint.py"]
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output = result.stdout.decode("utf-8")
         error_output = result.stderr.decode("utf-8")
         print(output)
@@ -64,7 +84,8 @@ def login_offline():  # 离线模式
     root.update()  # 更新窗口，确保进度条显示
     print('2')
     try:
-        result = subprocess.run(["python", "camera.py"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        command = [python_executable, f"{current_dir}/camera.py"]
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output = result.stdout.decode("utf-8")
         error_output = result.stderr.decode("utf-8")
         print(output)

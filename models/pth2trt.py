@@ -1,14 +1,14 @@
 import shutil
 import sys
 
-from handpose.models.resnet import resnet50
+from common.handpose.models.resnet import resnet50
 
 sys.path.append("..")
 from _utils.myutils import *
 import torch2trt
-from handpose.models.squeezenet import squeezenet1_1
-from mico.backbone import MicroNet
-from mico.utils.defaults import _C as cfg
+from common.handpose.models.squeezenet import squeezenet1_1
+from common.mico.backbone import MicroNet
+from common.mico.utils.defaults import _C as cfg
 from multiprocessing import Process
 from pthVSrt import te_sr
 

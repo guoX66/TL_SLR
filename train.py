@@ -202,7 +202,7 @@ def train_process():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str)
-    parser.add_argument('--epochs', type=int)
+    parser.add_argument('--epoch', type=int)
     parser.add_argument('--batch_size', type=int)
     parser.add_argument('--divide_present', type=float)
     parser.add_argument('--lr', type=float)
@@ -213,7 +213,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     dic = vars(args)
     change_dict = {i: dic[i] for i in dic.keys() if dic[i] is not None}
-
+    print(change_dict)
     try:
         import yaml
 

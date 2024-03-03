@@ -2,7 +2,9 @@ import argparse
 import os
 import shutil
 from pathlib import Path
+import sys
 
+sys.path.append("..")
 import numpy as np
 import torch
 import json
@@ -10,7 +12,6 @@ from common.mico.backbone import MicroNet
 from common.mico.utils.defaults import _C as cfg
 from _utils.myutils import make_model
 from _utils.configs import ba_Cfg, tr_Cfg
-
 from pthVSov import te_fast
 
 if __name__ == '__main__':
@@ -26,7 +27,15 @@ if __name__ == '__main__':
     class_dict = {int(k): class_dict[k] for k in class_dict.keys()}
     n_label = len(list(class_dict.keys()))
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    openvino_path = ba_Cfg['env_path']
+    env_path = ba_Cfg['env_path']
+    import site
+
+    envs = site.getsitepackages()
+    for i in envs:
+        if 'site-packages' in i:
+            openvino_path = i
+            break
+
     path = f'pth/model-{args.model}.pth'
     save_path = f"openvino_model/{args.model}.xml"
     if args.model == 'micronet_m3':
@@ -49,19 +58,19 @@ if __name__ == '__main__':
 
     )
 
-    py_sys = f'python {openvino_path}/site-packages/openvino/tools/mo/mo_onnx.py'
+    py_sys = f'python {openvino_path}/openvino/tools/mo/mo_onnx.py'
     sys = f'{py_sys} --input_model onnx_model/{args.model}.onnx  --output_dir ./openvino_model --input_shape "[1,3,{s1},{s2}]" --mean_values "[{255 * m1}, {255 * m2} , {255 * m3}]" --scale_values "[{255 * st1}, {255 * st1} , {255 * st3}]" --compress_to_fp16=True'
     os.system(sys)
 
     rd = np.random.RandomState(888)
-    data = rd.random((s1, s2, 3))  # 随机生成一个 [0,1) 的浮点数 ，5x5的矩阵
+    data = rd.random((1, 3, s1, s2))  # 随机生成一个 [0,1) 的浮点数 ，5x5的矩阵
     txt_list = []
     te_fast(model, save_path, data, txt_list)
-    txt_path = '../log/pth-VS-OV.txt'
+    txt_path = '../log/pth-VS-OV_class.txt'
     content = ''
     for txt in txt_list:
         content += txt
     with open(txt_path, 'w+', encoding='utf8') as f:
         f.write(content)
     print()
-    print(f'IR model saved in {save_path} ,log file saved in log/pth-VS-tr.txt')
+    print(f'IR model saved in {save_path} ,log file saved in log/pth-VS-OV_class.txt')

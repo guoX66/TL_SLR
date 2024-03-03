@@ -4,16 +4,14 @@ import shutil
 import torch
 import json
 import sys
-
 sys.path.append("..")
-from movenet.models.model_factory import load_model
-from handpose.models.squeezenet import squeezenet1_1
-from mico.backbone import MicroNet
-from mico.utils.defaults import _C as cfg
+from common.movenet.models.model_factory import load_model
+from common.handpose.models.squeezenet import squeezenet1_1
+from common.mico.backbone import MicroNet
+from common.mico.utils.defaults import _C as cfg
 from _utils.myutils import make_model, remove_file
 from pthVSov import te_ov
 from pathlib import Path
-from _utils.configs import Cfg
 
 
 if __name__ == '__main__':
@@ -35,32 +33,29 @@ if __name__ == '__main__':
     path1 = 'pth/model-micronet_m3.pth'
     path2 = 'pth/model-mobilenet_v3.pth'
 
-    openvino_path = Cfg['python_path']
+    import site
+    envs = site.getsitepackages()
+    print(envs)
+    for i in envs:
+        if 'site-packages' in i:
+            openvino_path = i
+            break
 
-    classify_model1 = MicroNet(cfg, num_classes=n_label)
-    classify_model1.load_state_dict(torch.load(path1, map_location=device), strict=False)
-    classify_model1.eval()
-
-    # classify_model2 = make_model('mobilenet_v3', n_label, path2, device)
-    # classify_model2.load_state_dict(torch.load(path2, map_location=device), strict=False)
-    # classify_model2.eval()
-
-    pose_model = load_model("movenet_lightning", ft_size=48)
+    pose_model = load_model("movenet_lightning", ft_size=48,model_dir='pth')
+    pose_model.to(device)
     pose_model.eval()
 
-    model_path = '../handpose/weights/squeezenet1_1-size-256-loss-0.0732.pth'
+    model_path = 'pth/squeezenet1_1-size-256-loss-0.0732.pth'
     hand_model = squeezenet1_1(num_classes=42)
     chkpt = torch.load(model_path, map_location=device)
     hand_model.load_state_dict(chkpt)
+    hand_model.to(device)
     hand_model.eval()
     # model_list = [classify_model1, classify_model2, pose_model, hand_model]
 
     model_dict = {
-        'micronet_m3': [classify_model1, torch.rand((1, 3, 256, 256))],
-        # 'mobilenet_v3': [classify_model2, torch.rand((1, 3, 256, 256))],
-        'classify_model': [classify_model1, torch.rand((1, 3, 256, 256))],
-        'pose_model': [pose_model, torch.rand((1, 192, 192, 3))],
-        'hand_model': [hand_model, torch.rand((1, 3, 256, 256))]}
+        'pose_model': [pose_model, torch.rand((1, 192, 192, 3)).to(device)],
+        'hand_model': [hand_model, torch.rand((1, 3, 256, 256)).to(device)]}
 
     for model_name in model_dict.keys():
         model = model_dict[model_name][0]
@@ -76,24 +71,9 @@ if __name__ == '__main__':
             output_names=['output']  # Output tensor name (arbitary)
 
         )
-        # onnx_model = lm(f'onnx_model/{model_name}.onnx')
-        # trans_model = float16_converter.convert_float_to_float16(onnx_model, keep_io_types=True)
-        # sm(trans_model, f'onnx_model/{model_name}.onnx')
-    # try:
-    #     shutil.rmtree('openvino_model')
-    # except:
-    #     pass
-    sys_com_micronet_m3 = f'python {openvino_path}/Lib/site-packages/openvino/tools/mo/mo_onnx.py --input_model onnx_model/micronet_m3.onnx  --output_dir ./openvino_model --input_shape "[1,3,256,256]" --compress_to_fp16=True '
-    sys_com_mobilenet_v3 = f'python {openvino_path}/Lib/site-packages/openvino/tools/mo/mo_onnx.py --input_model onnx_model/mobilenet_v3.onnx  --output_dir ./openvino_model --input_shape "[1,3,256,256]" --compress_to_fp16=True'
-    sys_com_classify_model = f'python {openvino_path}/Lib/site-packages/openvino/tools/mo/mo_onnx.py --input_model onnx_model/classify_model.onnx  --output_dir ./openvino_model --input_shape "[1,3,256,256]" --mean_values "[123.675, 116.28 , 103.53]" --scale_values "[58.395, 57.12 , 57.375]" --compress_to_fp16=True'
-    sys_com_pose = f'python {openvino_path}/Lib/site-packages/openvino/tools/mo/mo_onnx.py --input_model onnx_model/pose_model.onnx  --output_dir ./openvino_model --input_shape "[1,192,192,3]" --compress_to_fp16=True'
-    sys_com_hand = f'python {openvino_path}/Lib/site-packages/openvino/tools/mo/mo_onnx.py --input_model onnx_model/hand_model.onnx  --output_dir ./openvino_model --input_shape "[1,3,256,256]" --compress_to_fp16=True'
 
-    os.system(sys_com_micronet_m3)
-    os.system(sys_com_mobilenet_v3)
-    os.system(sys_com_classify_model)  # micronet_m3
+    sys_com_pose = f'python {openvino_path}/openvino/tools/mo/mo_onnx.py --input_model onnx_model/pose_model.onnx  --output_dir ./openvino_model --input_shape "[1,192,192,3]" --compress_to_fp16=True'
+    sys_com_hand = f'python {openvino_path}/openvino/tools/mo/mo_onnx.py --input_model onnx_model/hand_model.onnx  --output_dir ./openvino_model --input_shape "[1,3,256,256]" --compress_to_fp16=True'
     os.system(sys_com_pose)
     os.system(sys_com_hand)
-
-    # remove_file('temp_ov', 'openvino_model')
-    te_ov()
+    te_ov(pose_model,hand_model)

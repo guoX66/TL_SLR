@@ -50,7 +50,7 @@ source my_env/bin/activate
 python -m pip install --upgrade pip
 ```
 
-## 2、特殊库配置安装（可以选择其中一个或多个进行）
+## 2、特殊库配置安装
 
 ### pytorch
 
@@ -68,7 +68,7 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 pip3 install torch torchvision torchaudio
 ```
 
- 
+
 
 ### openvino
 
@@ -80,9 +80,9 @@ pip install openvino-dev==2022.3.1
 
 在树莓派上部署详见我的博客：[树莓派4B配置Openvino-CSDN博客](https://blog.csdn.net/2301_76725922/article/details/136389051)
 
- 
 
-### TensorRT
+
+### *TensorRT（可选）
 
 若使用TensorRt框架进行推理，请确保
 
@@ -137,10 +137,10 @@ python setup.py install
 
 ```yaml
 base:
-  device: NVIDIA pytorch                 # 计算平台，CPU、MYRAID、NVIDIA pytorch、NVIDIA tensorrt
+  device: NVIDIA pytorch                 # 计算平台，CPU、MYRIAD(NCS2)计算棒、NVIDIA pytorch、NVIDIA tensorrt
   platform: pc                           # 平台类型，树莓派填 rp,其余填pc
-  pose_net: ov                           # movenet填 mv openvino模型填 ov
-  env_path: ../my_env/Lib                # 填写python环境路径,写到 site-packages的上一级目录
+  pose_net: ov                           # movenet填 mv openvino模型填 ov , MYRIAD服务下只能使用ov
+  env_path: ../my_env                    # 填写python环境路径
   size: 256x256                          # 设置输入分类模型的图片大小
   view_mode: 3                           # 显示转换效果，0为不显示，1为显示骨架图，2为显示骨架在实际图像上的效果，3为全部显示
 
@@ -220,7 +220,7 @@ python main.py
 3、命令行传参设置会覆盖Cfg.yaml中的设置，示例如下:
 
 ```bash
-python pose.py --device NVIDIA pytorch --view_mode 0
+python pose.py --device "NVIDIA pytorch" --view_mode 0
 ```
 
 ### 3、模型训练
@@ -230,7 +230,7 @@ python pose.py --device NVIDIA pytorch --view_mode 0
 请注意命令行传参设置会覆盖Cfg.yaml中的设置，示例如下:
 
 ```bash
-python train.py --model micronet_m3 --epochs 100 --batch_size 4 --divide_present 0.8 --lr 0.001 --step_size 1 --gamma 0.95 --write_process false --show_mode Simple
+python train.py --model micronet_m3 --epoch 100 --batch_size 4 --divide_present 0.8 --lr 0.001 --step_size 1 --gamma 0.95 --write_process false --show_mode Simple
 ```
 
 
@@ -241,7 +241,7 @@ python train.py --model micronet_m3 --epochs 100 --batch_size 4 --divide_present
 
 ### 1、转openvino框架
 
-需要修改 Cfg.yaml 中 base-env_path 参数,填写python环境路径,写到 site-packages的上一级目录
+需要修改 Cfg.yaml 中 base-env_path 参数,填写python环境路径，然后运行以下程序
 
 ```bash
 cd models

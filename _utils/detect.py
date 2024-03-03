@@ -47,13 +47,16 @@ def Multiprocess(iq, oq, p_pose, p_hand, p_class, class_dict, sq, mode, device):
             if not iq.empty():
                 img = iq.get()
                 break
-        if mode == "mv":
+        if mode == "ov" and device == 'MYRIAD':
+            from common.open_zoo.pose_demo import ov_ini
+            pose_model, ie = ov_ini(pose_path, img, 'MYRIAD')
+        elif mode == "ov":
+            from common.open_zoo.pose_demo import ov_ini
+            pose_model, ie = ov_ini(pose_path, img, 'CPU')
+        elif mode == "mv":
             from openvino.runtime import Core
             ie = Core()
             pose_model = my_convert_model(pose_path, ie, device='CPU')
-        elif mode == "ov":
-            from common.open_zoo.pose_demo import ov_ini
-            pose_model, ie = ov_ini(pose_path, img, device)
         else:
             raise ValueError('pose net must be "mv" or "ov"')
         hand_model = my_convert_model(hand_path, ie, device)

@@ -1,10 +1,10 @@
 base:
   device: NVIDIA pytorch
+  env_path: ./my_env
   platform: pc
-  pose_net: ov
-  env_path: D:\code\python3.10\Lib
+  pose_net: mv
   size: 256x256
-  view_mode: 3
+  view_mode: 2
 inference:
   IP: 203.135.98.31
   model: micronet_m3
@@ -18,12 +18,13 @@ train:
   - - 0.229
     - 0.224
     - 0.225
-  batch_size: 16
+  batch_size: 4
   divide_present: 0.8
-  epoch: 50
+  epoch: 100
   gamma: 0.95
   learn_rate: 0.001
-  model: resnet18
+  lr: 0.001
+  model: micronet_m3
   show_mode: Simple
   step_size: 1
-  write_process: false
+  write_process: true

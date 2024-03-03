@@ -32,7 +32,9 @@ def main(camera, pf, mode, device):
         p_hand = 'models/tensorrt_model/tr-hand_model-squ.pth'
         p_pose = load_model("movenet_lightning", ft_size=48)
     else:
-        if mode == 'mv':
+        if device == 'MYRIAD':
+            p_pose = 'models/openvino_model/human-pose-estimation-0005.xml'
+        elif mode == 'mv':
             p_pose = 'models/openvino_model/pose_model.xml'
         elif mode == 'ov':
             p_pose = 'models/openvino_model/human-pose-estimation-0005.xml'
