@@ -1,3 +1,9 @@
 [submodule "T2tr"]
 	path = T2tr
 	url = https://github.com/NVIDIA-AI-IOT/torch2trt.git
+[submodule "Torch2trt"]
+	path = Torch2trt
+	url = https://github.com/NVIDIA-AI-IOT/torch2trt.git
+[submodule "common/Torch2trt"]
+	path = common/Torch2trt
+	url = https://github.com/NVIDIA-AI-IOT/torch2trt.git
