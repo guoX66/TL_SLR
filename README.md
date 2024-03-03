@@ -140,7 +140,7 @@ base:
   device: NVIDIA pytorch                 # 计算平台，CPU、MYRIAD(NCS2)计算棒、NVIDIA pytorch、NVIDIA tensorrt
   platform: pc                           # 平台类型，树莓派填 rp,其余填pc
   pose_net: ov                           # movenet填 mv openvino模型填 ov , MYRIAD服务下只能使用ov
-  env_path: ../my_env                    # 填写python环境路径
+  env_path: ./my_env                    # 填写python环境路径
   size: 256x256                          # 设置输入分类模型的图片大小
   view_mode: 3                           # 显示转换效果，0为不显示，1为显示骨架图，2为显示骨架在实际图像上的效果，3为全部显示
 
