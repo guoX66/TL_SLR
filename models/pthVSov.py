@@ -24,12 +24,12 @@ def te_fast(model, ov_path, data, txt_list, mode='class'):
     start_time = time.time()
     model.eval()
     with torch.no_grad():
-        for i in range(100):
+        for i in range(1000):
             out1 = model(t_data)
         end_time = time.time()
         add_log(f'    Torch-cpu cost {round((end_time - start_time), 2)}s', txt_list)
         start_time2 = time.time()
-        for i in range(100):
+        for i in range(1000):
             out2 = inference_(ov_model, data)
         end_time2 = time.time()
         add_log(f'    openvino cost {round((end_time2 - start_time2), 2)}s', txt_list)

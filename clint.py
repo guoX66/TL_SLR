@@ -1,15 +1,13 @@
 import json
-import platform
+import os
 import time
 import cv2
 from multiprocessing import Process, Queue
 import socket
-import pickle
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 import matplotlib.font_manager as fm
-import matplotlib
-from _utils.configs import Ir_Cfg,ba_Cfg
+from _utils.configs import read_cfg
 
 
 def cv2ImgAddText(img, text, left, top, textColor, textSize=20):
@@ -111,22 +109,26 @@ def web_get(oq, ADDRESS, eq, sq):
                 oq.put(res)
 
 
-def web_video_start(camera, iq, oq, wq, eq, mode, sq):
-    if mode == 'rp' and camera == 0:
+def web_video_start(camera, iq, oq, wq, eq, sq):
+    mode = 'pc'
+    try:
         from picamera2 import Picamera2
         cap = Picamera2()
         cap.configure(cap.create_preview_configuration(main={"format": 'XRGB8888', "size": (640, 480)}))
         cap.start()
+        mode = 'rp'
+    except:
+        if camera == 0:
+            cap = cv2.VideoCapture(0)
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, 480)
+            # 图像高度
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 640)
+            # 视频帧率
+            cap.set(cv2.CAP_PROP_FPS, 30)
 
-    elif camera == 0:
-        cap = cv2.VideoCapture(0)
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-        # 图像高度
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-        # 视频帧率
-        cap.set(cv2.CAP_PROP_FPS, 30)
-    else:
-        cap = cv2.VideoCapture(camera)
+        else:
+            cap = cv2.VideoCapture(camera)
+            cap.set(cv2.CAP_PROP_FPS, 30)
     if mode == 'rp' and camera == 0:
         img = cap.capture_array()
         img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
@@ -146,13 +148,19 @@ def web_video_start(camera, iq, oq, wq, eq, mode, sq):
     s_time = time.perf_counter()
     s1_time = time.perf_counter()
     while True:
-        if mode == 'rp' and camera == '0':
+        if mode == 'rp' and camera == 0:
             img = cap.capture_array()
             img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
 
         else:
             ret, img = cap.read()
 
+        if img is None:
+            if mode == 'pc' or camera != 0:
+                cap.release()
+            cv2.destroyAllWindows()
+            eq.put(1)
+            break
         m, n, l = img.shape
         txt_m = int(0.8 * m)
         txt_n = int(0.5 * m)
@@ -189,10 +197,11 @@ def web_video_start(camera, iq, oq, wq, eq, mode, sq):
         if word != 'None' and word != 'not_classify':
             img = cv2ImgAddText(img, word, txt_n, txt_m, textColor=(255, 0, 0), textSize=30)
         cv2.imshow('demo', img)
+        cv2.waitKey(1)
         if cv2.waitKey(1) & 0xFF == 27:
             eq.put(1)
             break
-    if mode == 'pc' or camera != '0':
+    if mode == 'pc' or camera != 0:
         cap.release()
     cv2.destroyAllWindows()
     while not iq.empty():
@@ -201,7 +210,7 @@ def web_video_start(camera, iq, oq, wq, eq, mode, sq):
         oq.get()
 
 
-def main(camera, IP, port, pf):
+def main(camera, IP, port):
     iq = Queue(10)  # 图片队列
     oq = Queue(10)  # 结果队列
     wq = Queue(10)  # 延迟队列
@@ -219,12 +228,12 @@ def main(camera, IP, port, pf):
     p2.daemon = True
     p2.start()
 
-    web_video_start(camera, iq, oq, wq, eq, pf, sq)
+    web_video_start(camera, iq, oq, wq, eq, sq)
     p1.join()
     p2.terminate()
 
 
 if __name__ == '__main__':
-    platform = ba_Cfg['platform']
-    pose_net = ba_Cfg['pose_net']
-    main(Ir_Cfg['source'], Ir_Cfg['IP'], Ir_Cfg['port'], ba_Cfg['platform'])
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    tr_Cfg, Ir_Cfg, ba_Cfg, _ = read_cfg(base_dir)
+    main(Ir_Cfg['source'], Ir_Cfg['IP'], Ir_Cfg['port'])

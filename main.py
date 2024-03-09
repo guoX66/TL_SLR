@@ -7,7 +7,10 @@ import subprocess
 from ttkbootstrap import Style
 from PIL import ImageTk, Image
 from tkinter import ttk
-from _utils.configs import ba_Cfg
+from _utils.configs import read_cfg
+
+base_dir = os.path.dirname(os.path.abspath(__file__))
+tr_Cfg, Ir_Cfg, ba_Cfg, Cfg = read_cfg(base_dir)
 
 os_name = str(platform.system())
 env = ba_Cfg['env_path']
@@ -27,42 +30,7 @@ def get_system_info():
     return os_name
 
 
-def ini_yaml():
-    trt = False  # tensorrt 是否可用
-    MYD = False  # 神经棒NCS2 是否可用
-    try:  # pytorch 是否可用
-        import torch
-        pyt = torch.cuda.is_available()
-    except:
-        pyt = False
-    if pyt:  # pytorch可用时 tensorrt才可用
-        try:  # tensorrt 是否可用
-            import tensorrt
-            trt = True
-        except:
-            pass
-    try:  # openvino 是否可用
-        from openvino.runtime import Core
-        ie = Core()
-        OV = True
-        OV_devices = Core().available_devices
-        if 'MYRIAD' in OV_devices:  # NCS2 是否可用
-            MYD = True
-    except:
-        OV = False
 
-    plat = []
-    if pyt or trt:
-        plat.append(['pc'])
-    if MYD:
-        plat.append(['rp'])
-    if OV:
-        plat.append(['rp', 'pc'])
-    plat_list = min(plat, key=len)  # 平台可选列表
-    device_list = ['NVIDIA pytorch', 'NVIDIA tensorrt', 'CPU', 'MYRAID']
-    avi_list = [pyt, trt, OV, MYD]
-    d_list = [device_list[i] for i in range(len(device_list)) if avi_list[i]]  # 可用服务列表
-    return plat_list, d_list
 
 
 def login_online():  # 在线模式

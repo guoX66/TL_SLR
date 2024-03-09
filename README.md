@@ -137,11 +137,8 @@ python setup.py install
 
 ```yaml
 base:
-  device: NVIDIA pytorch                 # 计算平台，CPU、MYRIAD(NCS2)计算棒、NVIDIA pytorch、NVIDIA tensorrt
-  platform: pc                           # 平台类型，树莓派填 rp,其余填pc
-  pose_net: ov                           # movenet填 mv openvino模型填 ov , MYRIAD服务下只能使用ov
+  device: CUDA                           # 计算平台，CUDA、TensorRt、MYRIAD(NCS2计算棒)
   env_path: ./my_env                    # 填写python环境路径
-  size: 256x256                          # 设置输入分类模型的图片大小
   view_mode: 3                           # 显示转换效果，0为不显示，1为显示骨架图，2为显示骨架在实际图像上的效果，3为全部显示
 
 inference:
@@ -150,24 +147,14 @@ inference:
   port: 37942                            # 服务器端口号
   source: assets/test.mp4                # 视频源，可以填本地视频路径，摄像头填 0
 
-
 train:
-  Normalized_matrix:                     # 标准化设置
-  - - 0.485
-    - 0.456
-    - 0.406
-  - - 0.229
-    - 0.224
-    - 0.225
   batch_size: 16
   divide_present: 0.8                    # 拆分验证集比例
   epoch: 50                              # 设置迭代次数
   gamma: 0.95                            # 学习率衰减系数，也即每个epoch学习率变为原来的0.95
-  learn_rate: 0.001                      # 设置学习率
+  lr: 0.001                              # 设置学习率
   model: resnet18                        # 选择模型，可选 micronet_m3,mobilenet_v3,googlenet,resnet18,resnet50
-  show_mode: Simple                      # 设模型层数信息写入log中的模式:'All'  'Simple'  'No'
   step_size: 1                           # 学习率衰减步长
-  write_process: false                   # 设置是否将训练过程写入log中
 
 
 ```
@@ -213,14 +200,12 @@ python main.py
 
 可以直接修改 Cfg.yaml 中device和view_mode参数，也可以通过命令行传参设置，但需要注意：
 
-1、NVIDIA tensorrt和NVIDIA pytorch都是使用pytorch进行转换 
+1、CUDA和TensorRt都是使用CUDA进行转换 
 
-2、当device为CPU时，将使用movenet进行姿态提取，且Cfg.yaml 中的pose_net参数设置将无效
-
-3、命令行传参设置会覆盖Cfg.yaml中的设置，示例如下:
+2、命令行传参设置会覆盖Cfg.yaml中的设置，示例如下:
 
 ```bash
-python pose.py --device "NVIDIA pytorch" --view_mode 0
+python pose.py --device "CUDA" --view_mode 0
 ```
 
 ### 3、模型训练
@@ -270,7 +255,7 @@ python pth2trt_demo.py --model googlenet  --fp16 True
 配置好环境后，在云服务器上，用以下命令开启服务端
 
 ```bash
-python TR_ser.py --port 8800 <可改为需要的端口>
+python TR_ser.py --port 8800
 ```
 
 在使用设备上，修改Cfg.yaml，设置为相应的IP和端口，运行main.py程序启动系统，选择本地模式连接服务器

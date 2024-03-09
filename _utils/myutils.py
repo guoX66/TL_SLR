@@ -3,6 +3,7 @@ import torch.nn as nn
 import numpy as np
 import cv2
 from PIL import Image, ImageDraw, ImageFont
+from torch.utils.data import Dataset
 from torchvision import models
 import json
 import torch
@@ -10,6 +11,35 @@ import os
 import matplotlib.pyplot as plt
 import time
 import matplotlib.font_manager as fm
+
+
+def ini_sys():
+    trt = False  # tensorrt 是否可用
+    MYD = False  # 神经棒NCS2 是否可用
+    try:  # pytorch 是否可用
+        import torch
+        pyt = torch.cuda.is_available()
+    except:
+        pyt = False
+    if pyt:  # pytorch可用时 tensorrt才可用
+        try:  # tensorrt 是否可用
+            import tensorrt
+            trt = True
+        except:
+            pass
+    try:  # openvino 是否可用
+        from openvino.runtime import Core
+        _ = Core()
+        OV = True
+        OV_devices = Core().available_devices
+        if 'MYRIAD' in OV_devices:  # NCS2 是否可用
+            MYD = True
+    except:
+        OV = False
+    device_list = ['CUDA', 'TensorRt', 'Openvino', 'MYRIAD']
+    avi_list = [pyt, trt, OV, MYD]
+    d_list = [device_list[i] for i in range(len(device_list)) if avi_list[i]]  # 可用服务列表
+    return d_list
 
 
 def remove_file(old_path, new_path):
@@ -253,3 +283,65 @@ def make_plot(data, mode, filename, epoch):
     plt.xticks(fontsize=20)
     plt.yticks(fontsize=20)
     plt.savefig(f'{path}.png')
+
+
+def npy_crop(feature, height, width, crop_rate):
+    not_zero = np.array([i for i in feature if (i[0] != 0 and i[1] != -1)])
+    min_x = min(not_zero[:, 1])
+    min_y = min(not_zero[:, 0])
+    max_x = max(not_zero[:, 1])
+    max_y = max(not_zero[:, 0])
+
+    crop_size_y = crop_rate * height
+    crop_size_x = crop_rate * width
+    crop_arr = np.array([crop_size_y, crop_size_x])
+    arr = np.array([min_y, min_x])
+    one_arr = np.array([1, 1])
+    out_put = np.array([i - arr + crop_arr if (i[0] != 0 and i[1] != -1) else i + one_arr for i in feature])
+    out_put[:, 0] = out_put[:, 0] / (max_y + 2 * crop_size_y)
+    out_put[:, 1] = out_put[:, 1] / (max_x + 2 * crop_size_x)
+    return out_put
+
+
+class MyDataset(Dataset):
+    def __init__(self, data):
+        self.data = data
+
+    def __getitem__(self, item):
+        return self.data[item]
+
+    def __len__(self):
+        return len(self.data)
+
+
+def train_process_np(path_dict, seq_len, class_dict):
+    seq = []
+    count = 0
+    class_to_id_dict = {}
+    for label in class_dict.keys():
+        real_label = label.split('-')[0]
+
+        if real_label not in class_to_id_dict.keys():
+            count += 1
+        class_to_id_dict[real_label] = count - 1
+
+    for label in path_dict.keys():
+        data = path_dict[label]
+        for i in range(len(data) - seq_len):
+            train_seq = []
+            for j in range(i, i + seq_len):
+                path = data[j]
+                directory = os.path.dirname(path)
+                file = os.path.basename(directory)
+                real_label = file.split('-')[0]
+                x = np.load(path, allow_pickle=True)
+                train_seq.append(x)
+
+            train_label = np.array([class_to_id_dict[real_label]])
+            train_seq = torch.FloatTensor(np.array(train_seq))
+            train_label = torch.from_numpy(train_label).type(torch.int64).view(-1)
+            seq.append((train_seq, train_label))
+
+    seq = MyDataset(seq)
+
+    return seq, {int(class_to_id_dict[k]): k for k in class_to_id_dict.keys()}

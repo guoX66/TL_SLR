@@ -1,7 +1,7 @@
 
 PART_NAMES = [
-    "nose", "leftEye", "rightEye", "leftEar", "rightEar", "leftShoulder",
-    "rightShoulder", "leftElbow", "rightElbow", "leftWrist", "rightWrist",
+    # "nose", "leftEye", "rightEye", "leftEar", "rightEar",
+    "leftShoulder","rightShoulder", "leftElbow", "rightElbow", "leftWrist", "rightWrist",
     # "leftHip", "rightHip", "leftKnee", "rightKnee", "leftAnkle", "rightAnkle"
 ]
 
@@ -29,12 +29,12 @@ CONNECTED_PART_INDICES = [(PART_IDS[a], PART_IDS[b]) for a, b in CONNECTED_PART_
 LOCAL_MAXIMUM_RADIUS = 1
 
 POSE_CHAIN = [
-    ("nose", "leftEye"), ("leftEye", "leftEar"), ("nose", "rightEye"),
-    ("rightEye", "rightEar"), ("nose", "leftShoulder"),
+    # ("nose", "leftEye"), ("leftEye", "leftEar"), ("nose", "rightEye"),
+    # ("rightEye", "rightEar"), ("nose", "leftShoulder"),
     ("leftShoulder", "leftElbow"), ("leftElbow", "leftWrist"),
     # ("leftShoulder", "leftHip"), ("leftHip", "leftKnee"),
     # ("leftKnee", "leftAnkle"),
-    ("nose", "rightShoulder"),
+    # ("nose", "rightShoulder"),
     ("rightShoulder", "rightElbow"), ("rightElbow", "rightWrist"),
     # ("rightShoulder", "rightHip"), ("rightHip", "rightKnee"),
     # ("rightKnee", "rightAnkle")
