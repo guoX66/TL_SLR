@@ -2,31 +2,31 @@
 
 # 基于迁移学习的手语识别方法
 
-## 姿态网络使用movenet/openvino官方模型，手部节点网络使用squeenet，分类网络使用micronet-m3/mobilenet-v3/GoogleNet/ResNet
+## 姿态网络使用movenet/openvino官方模型，手部节点网络使用squeenet，分类网络使用LSTM/micronet-m3/mobilenet-v3/GoogleNet/ResNet
 
-movenet参考项目：[lee-man/movenet-pytorch: A PyTorch port of Google Movenet (inference only) (github.com)](https://github.com/lee-man/movenet-pytorch)
+**movenet参考项目：[lee-man/movenet-pytorch: A PyTorch port of Google Movenet (inference only) (github.com)](https://github.com/lee-man/movenet-pytorch)**
 
-squeenet手部识别参考项目：[Eric.Lee2021 / handpose_x · GitCode](https://codechina.csdn.net/EricLee/handpose_x)
+**squeenet手部识别参考项目：[Eric.Lee2021 / handpose_x · GitCode](https://codechina.csdn.net/EricLee/handpose_x)**
 
-movenet参考项目：[liyunsheng13/micronet (github.com)](https://github.com/liyunsheng13/micronet)
+**micronet参考项目：[liyunsheng13/micronet (github.com)](https://github.com/liyunsheng13/micronet)**
 
-openvino官方模型：[openvinotoolkit/open_model_zoo: Pre-trained Deep Learning models and demos (high quality and extremely fast) (github.com)](https://github.com/openvinotoolkit/open_model_zoo)
-
-
-
-项目的本地模式可以部署于PC、树莓派上
-
-在线模式的客户端可以选择PC、树莓派
-
-在线模式的服务端可以选择带有可连接IP和端口进行TCP连接的PC、服务器
+**openvino官方模型：[openvinotoolkit/open_model_zoo: Pre-trained Deep Learning models and demos (high quality and extremely fast) (github.com)](https://github.com/openvinotoolkit/open_model_zoo)**
 
 
 
-要将项目部署于树莓派上，需使用NCS2设备，设置MYRAID服务，操作方法参考：
+**项目的本地模式可以部署于PC、树莓派上**
 
-[Install OpenVINO™ Runtime for Raspbian OS — OpenVINO™ documentationCopy to clipboardCopy to clipboardCopy to clipboardCopy to clipboardCopy to clipboardCopy to clipboardCopy to clipboardCopy to clipboardCopy to clipboardCopy to clipboard — Version(2022.3)](https://docs.openvino.ai/2022.3/openvino_docs_install_guides_installing_openvino_raspbian.html)
+**在线模式的客户端可以选择PC、树莓派**
+
+**在线模式的服务端可以选择带有可连接IP和端口进行TCP连接的PC、服务器**
 
 
+
+**要将项目部署于树莓派上，需使用NCS2设备，设置MYRAID服务，操作方法参考：**
+
+**[Install OpenVINO™ Runtime for Raspbian OS — OpenVINO™ documentationCopy to clipboardCopy to clipboardCopy to clipboardCopy to clipboardCopy to clipboardCopy to clipboardCopy to clipboardCopy to clipboardCopy to clipboardCopy to clipboard — Version(2022.3)](https://docs.openvino.ai/2022.3/openvino_docs_install_guides_installing_openvino_raspbian.html)**
+
+**也可以查看我的博客：[树莓派4B配置Openvino-CSDN博客](https://blog.csdn.net/2301_76725922/article/details/136389051)**
 
 
 
@@ -52,33 +52,25 @@ python -m pip install --upgrade pip
 
 ## 2、特殊库配置安装
 
-### pytorch
+## pytorch
 
 安装torch>=2.1.1,torchaudio>=2.1.1 torchvision>=0.16.1
 
-在有nvidia服务的设备上，使用以下命令安装
+请在有nvidia服务的设备上，使用以下命令安装
 
 ```bash
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 ```
 
-在没有nvidia服务的设备上，使用以下命令安装
+ 
 
-```bash
-pip3 install torch torchvision torchaudio
-```
-
-
-
-### openvino
+## openvino
 
 若使用openvino框架进行推理，请使用以下命令安装环境
 
 ```bash
 pip install openvino-dev==2022.3.1
 ```
-
-在树莓派上部署详见我的博客：[树莓派4B配置Openvino-CSDN博客](https://blog.csdn.net/2301_76725922/article/details/136389051)
 
 
 
@@ -153,7 +145,7 @@ train:
   epoch: 50                              # 设置迭代次数
   gamma: 0.95                            # 学习率衰减系数，也即每个epoch学习率变为原来的0.95
   lr: 0.001                              # 设置学习率
-  model: resnet18                        # 选择模型，可选 micronet_m3,mobilenet_v3,googlenet,resnet18,resnet50
+  model: resnet18                        # 选择模型，可选 micronet_m3,mobilenet_v3,googlenet,resnet18,resnet50，LSTM
   step_size: 1                           # 学习率衰减步长
 
 
