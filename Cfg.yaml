@@ -1,6 +1,6 @@
 base:
   device: CUDA
-  env_path: ./my_env
+  env_path: D:\code\python3.10
   view_mode: 2
 inference:
   IP: 203.135.98.31

@@ -184,20 +184,6 @@ def video_start(camera, iq, oq, sq):
     return
 
 
-def my_convert_model(model_path, ie, device):
-    model = ie.read_model(model_path)
-    compiled_model = ie.compile_model(model=model, device_name=device)
-    # compiled_model = ie.compile_model(model=model, device_name="MYRIAD")
-    return compiled_model
-
-
-def inference_(compiled_model, input_image):
-    input_image = np.expand_dims(input_image, 0)
-    # input_image = input_image.astype('float16')
-    input_layer_ir = compiled_model.input(0)
-    output_layer_ir = compiled_model.output(0)
-    result = compiled_model([input_image])[output_layer_ir]
-    return result
 
 
 def get_pose_mean(input_image, pose_model, hand_model, classify_model, class_dict, device, LSTM_model):

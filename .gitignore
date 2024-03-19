@@ -15,6 +15,7 @@ releases/
 *.bin
 *.mapping
 *.npy
+Cfg.yaml
 !/assets
 !/assets/*
 /log/*

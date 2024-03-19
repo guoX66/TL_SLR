@@ -44,7 +44,7 @@ class TrainImg:
         self.npypath = 'data/npys'
         self.divide_present = tr_Cfg['divide_present']
         self.batch_size = tr_Cfg['batch_size']
-        self.learn_rate = tr_Cfg['learn_rate']
+        self.learn_rate = tr_Cfg['lr']
         self.step_size = tr_Cfg['step_size']
         self.gamma = tr_Cfg['gamma']
         self.epoch = tr_Cfg['epoch']

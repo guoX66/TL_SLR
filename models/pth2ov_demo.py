@@ -11,22 +11,26 @@ import json
 from common.mico.backbone import MicroNet
 from common.mico.utils.defaults import _C as cfg
 from _utils.myutils import make_model
-from _utils.configs import ba_Cfg, tr_Cfg
+from _utils.configs import read_cfg, ModelInfo, LSTM, TrainImg
 from pthVSov import te_fast
 
 if __name__ == '__main__':
-    s1, s2 = int(ba_Cfg['size'].split('x')[0]), int(ba_Cfg['size'].split('x')[1])
-    m1, m2, m3 = tr_Cfg['Normalized_matrix'][0][0], tr_Cfg['Normalized_matrix'][0][1], tr_Cfg['Normalized_matrix'][0][2]
-    st1, st2, st3 = tr_Cfg['Normalized_matrix'][1][0], tr_Cfg['Normalized_matrix'][1][1], \
-        tr_Cfg['Normalized_matrix'][1][2]
+    modelInfo = ModelInfo()
+    Train = TrainImg()
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    base_dir = os.path.dirname(base_dir)
+    tr_Cfg, Ir_Cfg, ba_Cfg, ini_Cfg = read_cfg(base_dir)
+    s1, s2 = modelInfo.size
+    m1, m2, m3 = modelInfo.ms[0][0], modelInfo.ms[0][1], modelInfo.ms[0][2]
+    st1, st2, st3 = modelInfo.ms[1][0], modelInfo.ms[1][1], modelInfo.ms[1][2]
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', type=str, default='resnet18')
+    parser.add_argument('--model', type=str, default='LSTM')
     args = parser.parse_args()
     with open("../log/class_id.json", 'r', encoding='UTF-8') as f:
         class_dict = json.load(f)
     class_dict = {int(k): class_dict[k] for k in class_dict.keys()}
     n_label = len(list(class_dict.keys()))
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cpu')
     env_path = ba_Cfg['env_path']
     import site
 
@@ -38,14 +42,20 @@ if __name__ == '__main__':
 
     path = f'pth/model-{args.model}.pth'
     save_path = f"openvino_model/{args.model}.xml"
+    sample_input = torch.rand((1, 3, s1, s2))
     if args.model == 'micronet_m3':
         model = MicroNet(cfg, num_classes=n_label)
         model.load_state_dict(torch.load(path, map_location=device), strict=False)
+    elif args.model == "LSTM":
+        model = LSTM(128, 1, n_label, Train.batch_size, 20, device)
+        model.load_state_dict(torch.load(path, map_location=device), strict=False)
+        sample_input = torch.rand((1, 20, 48, 2))
     else:
         model = make_model(args.model, n_label, path, device)
 
     model.eval()
-    sample_input = torch.rand((1, 3, s1, s2))
+    model.to(device)
+    sample_input = sample_input.to(device)
     torch.onnx.export(
         model,
         sample_input,  # Input tensor
@@ -57,13 +67,16 @@ if __name__ == '__main__':
         output_names=['output']  # Output tensor name (arbitary)
 
     )
-
+    rd = np.random.RandomState(888)
     py_sys = f'python {openvino_path}/openvino/tools/mo/mo_onnx.py'
-    sys = f'{py_sys} --input_model onnx_model/{args.model}.onnx  --output_dir ./openvino_model --input_shape "[1,3,{s1},{s2}]" --mean_values "[{255 * m1}, {255 * m2} , {255 * m3}]" --scale_values "[{255 * st1}, {255 * st1} , {255 * st3}]" --compress_to_fp16=True'
+    if args.model == "LSTM":
+        sys = f'{py_sys} --input_model onnx_model/{args.model}.onnx  --output_dir ./openvino_model --input_shape "[1,20,48,2]" --compress_to_fp16=True'
+        data = rd.random((1, 20, 48, 2))
+    else:
+        sys = f'{py_sys} --input_model onnx_model/{args.model}.onnx  --output_dir ./openvino_model --input_shape "[1,3,{s1},{s2}]" --mean_values "[{255 * m1}, {255 * m2} , {255 * m3}]" --scale_values "[{255 * st1}, {255 * st1} , {255 * st3}]" --compress_to_fp16=True'
+        data = rd.random((1, 3, s1, s2))
     os.system(sys)
 
-    rd = np.random.RandomState(888)
-    data = rd.random((1, 3, s1, s2))  # 随机生成一个 [0,1) 的浮点数 ，5x5的矩阵
     txt_list = []
     te_fast(model, save_path, data, txt_list)
     txt_path = '../log/pth-VS-OV_class.txt'

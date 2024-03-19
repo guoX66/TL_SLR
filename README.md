@@ -54,15 +54,11 @@ python -m pip install --upgrade pip
 
 ## pytorch
 
-安装torch>=2.1.1,torchaudio>=2.1.1 torchvision>=0.16.1
-
 请在有nvidia服务的设备上，使用以下命令安装
 
 ```bash
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 ```
-
- 
 
 ## openvino
 

@@ -4,14 +4,13 @@ import json
 import sys
 
 sys.path.append("..")
-from _utils.detect import make_model, my_convert_model, inference_
 from common.handpose.models.squeezenet import squeezenet1_1
 from common.movenet.models.model_factory import load_model
 import time
 from openvino.runtime import Core
 from common.mico.backbone import MicroNet
 from common.mico.utils.defaults import _C as cfg
-from _utils.myutils import add_log
+from _utils.myutils import add_log, my_convert_model, inference_
 
 
 def te_fast(model, ov_path, data, txt_list, mode='class'):
@@ -23,6 +22,7 @@ def te_fast(model, ov_path, data, txt_list, mode='class'):
     data = data.astype('float16')
     start_time = time.time()
     model.eval()
+    model.to(device)
     with torch.no_grad():
         for i in range(1000):
             out1 = model(t_data)
